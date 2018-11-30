@@ -2,28 +2,34 @@
 % Define Jet Bridge and Runway for the arrangement of flight
 %
 
-% flight(EAT, AAT, N, EDT, ADT) is the definition of flight with
-%                         estimate arrival time EAT, actual arrival time AAT, flight number N,
-%                         estimate departure time EDT, and actual departure time ADT
+% flight(AT, JBT, N, DT) is the definition of flight with
+%                         arrival time AT, arrival jetbridge time JBT, flight number N,
+%                         departure time DT
 
-flight(time(6,0), time(6,1), start1, time(6,2), time(10,3)).
-flight(time(6,0), time(6,1), start2, time(6,2), time(6,3)).
-flight(time(6,0), time(6,1), start3, time(6,2), time(6,3)).
-flight(time(6,0), time(6,1), start4, time(6,2), time(6,3)).
-flight(time(6,0), time(6,1), start5, time(6,2), time(6,3)).
+flight(time(6,0), time(6,1), start1, time(10,3)).
+flight(time(6,0), time(6,1), start2, time(6,3)).
+flight(time(6,0), time(6,1), start3, time(6,3)).
+flight(time(6,0), time(6,1), start4, time(6,3)).
+flight(time(6,0), time(6,1), start5, time(6,3)).
 
 % jetbridge(N, L) is a jetbridge with name N and the list of plane L
-jetbridge(jb1, [flight(time(6,0), time(6,1), start1, time(6,2), time(10,3))]).
-jetbridge(jb2, [flight(time(6,0), time(6,1), start2, time(6,2), time(6,3))]).
+jetbridge(jb1, [flight(time(6,0), time(6,1), start1, time(10,3))]).
+jetbridge(jb2, [flight(time(6,0), time(6,1), start2, time(6,3))]).
 jetbridge(jb3, []).
-jetbridge(jb4, [flight(time(6,0), time(6,1), start4, time(6,2), time(6,3))]).
+jetbridge(jb4, [flight(time(6,0), time(6,1), start4, time(6,3))]).
 jetbridge(jb5, []).
 
-% addtobridge(J, F, R) is that add a flight F to one of jet bridge with name J
+% addbridge(J, F, R) is that add a flight name F to one of jet bridge with name J
 %                           and result R
-addtobridge(J, F, R) :-
+addbridge(J, F, R) :-
+    flight(AT, JBT, F, DT),
     jetbridge(J, L),
-    newflight(L, F, R).
+    newflight(L, flight(AT, JBT, F, DT), R).
+
+% addbridge(J, F, R) is that add a flight name F to a jet bridge J that can be empty earlier.
+%
+addbridge(J, F, R) :-
+    jetbridge(J, [flight(A1,JB1,Flight1,D1)|T]),
 
 
 % compare(A, B) is that time A is earlier than time B
@@ -41,7 +47,7 @@ compare(time(H1,M1), time(H2,M2)) :-
 %                            F is new flight, R is new list
 
 newflight([],F,[F]).
-newflight([flight(EA1,AA1,Flight1,ED1,AD1)|T], flight(EA2,AA2,Flight2,ED2,AD2),
-          [flight(EA2,AA2,Flight2,ED2,AD2),flight(EA1,AA1,Flight1,ED1,AD1)|T]) :-
-          compare(AD1,EA2),
+newflight([flight(A1,JB1,Flight1,D1)|T], flight(A2,JB2,Flight2,D2),
+          [flight(A2,JB2,Flight2,D2),flight(A1,JB1,Flight1,D1)|T]) :-
+          compare(D1,A2),
           dif(Flight1,Flight2).
